@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Splitwise - Track | Split | Settle</title>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+<script src="script.js"></script>
+</head>
+<body>
+<div class="premium-header">
+    <div class="brand-section">
+        <img src="logo.png" class="brand-logo">
+        <div class="brand-text">
+            <h1>Splitwise</h1>
+        </div>
+    </div>    
+      <div class="wave-container">
+      <svg viewBox="0 0 1200 220"
+          xmlns="http://www.w3.org/2000/svg"
+          class="custom-wave">
+        <defs>
+          <linearGradient id="waveGradient"            x1="0%"            y1="0%"            x2="100%"            y2="0%">
+            <stop offset="0%" stop-color="#e9d5ff"/>
+            <stop offset="30%" stop-color="#7c3aed"/>
+            <stop offset="65%" stop-color="#14b8a6"/>
+            <stop offset="100%" stop-color="#d1fae5"/>
+          </linearGradient>
+        </defs>
+        <path
+          d="M0 120
+            C100 20, 200 220, 300 120
+            S500 20, 600 120
+            S800 220, 900 120
+            S1100 20, 1200 120"
+          stroke="url(#waveGradient)"
+          stroke-width="28"
+          fill="none"
+          stroke-linecap="round"/>
+
+      </svg>
+        <div class="sparkle s1">✦</div>
+        <div class="sparkle s2">✦</div>
+        <div class="sparkle s3">✦</div>
+        <div class="sparkle s4">✦</div>
+      </div>
+
+
+    <div class="header-status">
+
+        <div class="save-status-box">
+
+            <div class="status-line">
+                ☁️ Data saved
+            </div>
+
+            <div id="saveStatus">
+                Today, 10:45 AM
+            </div>
+
+        </div>
+
+        <button class="save-header-btn">
+            💾 Save Data
+        </button>
+
+        <button class="reset-header-btn">
+            🗑 Reset All Data
+        </button>
+
+    </div>
+
+</div>
+
+<div class="container">
+<div>
+<div class="card people-card">
+
+    
+<h2 class="section-title">
+    <span class="people-icon">👥</span>
+    PEOPLE
+</h2>
+
+
+    <div class="add-person-row">
+
+        <input
+            id="personName"
+            placeholder="Enter name"
+            onkeypress="if(event.key==='Enter') addPerson()">
+
+        <button onclick="addPerson()">
+
+            Add
+
+        </button>
+
+    </div>
+
+    <div id="peopleList"></div>
+
+</div>
+
+<div class="card expense-card">
+
+    <h2 class="section-title">
+        📋 EXPENSE FORM
+    </h2>
+
+    <input id="desc" placeholder="Description">
+
+    <input id="amount"
+           type="number"
+           placeholder="Amount (INR)">
+
+    <div class="date-payer-row">
+
+        <input id="date"
+               type="date">
+
+        <select id="payer"></select>
+
+    </div>
+
+    <label class="label-title">Participants</label>
+
+    <div id="participants"
+         class="participants-list">
+    </div>
+
+    <label class="label-title">
+        Split Type
+    </label>
+
+    <select id="splitType">
+        <option value="equal">Equal</option>
+        <option value="exact">Exact</option>
+        <option value="percent">Percent</option>
+    </select>
+
+    <input id="splitValues"
+           placeholder="Exact/Percent values comma separated">
+
+    <hr>
+
+    <div class="currency-header">
+
+        <span>
+            FOREIGN CURRENCY
+        </span>
+
+        <label class="switch">
+            <input
+              type="checkbox"
+              id="enableCurrency">
+            <span class="slider"></span>
+        </label>
+
+    </div>
+
+    <input id="currencyName"
+           placeholder="Currency (USD)">
+
+    <input id="exchangeRate"
+           type="number"
+           step="0.01"
+           placeholder="1 Currency = ? INR">
+
+    <button
+      class="expense-btn"
+      onclick="addExpense()">
+
+      ⊕ Add Expense
+
+    </button>
+
+</div>
+</div>
+
+<div class="card">
+<div id="pdfArea">
+<div class="expense-toolbar">
+
+    <div class="expense-title">
+        📋 EXPENSES
+    </div>
+
+    <div class="expense-controls">
+
+        <select id="spenderFilter"
+                onchange="render()">
+            <option value="all">All Payers</option>
+        </select>
+
+        <select id="participantFilter"
+                onchange="render()">
+            <option value="all">All Participants</option>
+        </select>
+
+    </div>
+
+</div>
+
+
+
+
+<div class="selection-row">
+  <button onclick="selectAll(true)">Select All</button>
+  <button onclick="selectAll(false)" style="background:#6b7280">Unselect All</button>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Select</th>
+<th>Description</th>
+<th>Original Amount</th>
+<th>INR Amount</th>
+<th>Payer</th>
+<th>Split Between</th>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<div class="analytics-row">
+    <div class="card">
+        <h4>⚖️ Settlement Breakdown</h4>
+        <div id="settlementCard"></div>
+    </div>
+    <div class="card">
+        <h4>💰 Balances</h4>
+        <div id="balancesCard"></div>
+    </div>
+    <div class="card">
+        <h4>🏆 Top Spenders</h4>
+        <div id="topSpenders"></div>
+    </div>
+</div>
+
+<!-- Small Pie charts for share and spent -->
+<div class="insights-row">
+
+    <div class="card">
+        <h4>Share %</h4>
+        <canvas id="shareChart"></canvas>
+    </div>
+
+    <div class="card">
+        <h4>Spent %</h4>
+        <canvas id="spentChart"></canvas>
+    </div>
+
+    <div class="card">
+        <h4>Overpaid / Underpaid</h4>
+        <div id="insightsBox"></div>
+    </div>
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+<br>
+<div class="action-buttons">
+<button class="action-btn export-btn" onclick="downloadCSV()">📊 Export CSV</button>
+<button class="action-btn pdf-btn" onclick="printPDF()">📄 Export PDF</button>
+<button class="action-btn save-btn" onclick="saveNow()" style="background:#16a34a">💾 Save Data</button>
+<button class="action-btn import-btn" onclick="document.getElementById('csvFile').click()">📥 Import CSV</button>
+<input type="file" id="csvFile" accept=".csv"onchange="loadCSV(event)" style="display:none;">
+<button class="action-btn reset-btn" onclick="resetAll()" style="background:#dc2626">🗑 Reset All Data</button><br>
+<div id="saveStatus" style="font-size:12px; color:gray;"></div>
+</div>
+
+<!--Add Preview UI-->
+<div id="previewBox" class="card" style="display:none;">
+  <h3>Preview Import</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Amount</th>
+        <th>Payer</th>
+        <th>Participants</th>
+      </tr>
+    </thead>
+    <tbody id="previewTable"></tbody>
+  </table>
+
+  <button onclick="confirmImport()">✅ Confirm Import</button>
+  <button onclick="cancelImport()" style="background:#dc2626">❌ Cancel</button>
+</div>
+
+</div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">  
+  <div style="background:#fff; padding:20px; border-radius:16px; max-width:600px; margin:60px auto;">
+    <h3>Edit Expense</h3>
+    <div class="form-grid">      
+      <div>
+        <label>Description</label>
+        <input id="editDesc" placeholder="Enter description">
+      </div>
+      <div>
+        <label>Amount</label>
+        <input id="editOriginalAmount" type="number" placeholder="Enter amount">
+      </div>
+      <div>
+        <label>Currency</label>
+        <input id="editCurrency" placeholder="USD / leave empty">
+      </div>
+      <div>
+        <label>Exchange Rate</label>
+        <input id="editRate" type="number" step="0.01" placeholder="1 cur = ? INR">
+      </div>
+      <div>
+        <label>Payer</label>
+        <select id="editPayer"></select>
+      </div>
+      <div>
+        <label>Date</label>
+        <input id="editDate" type="date">
+      </div>
+    </div>
+
+    <!-- ✅ Full width section -->
+    <label style="margin-top:15px;">Split Between</label>
+    <div id="editParticipants" class="participants-list"></div>
+    <br>
+
+    <button onclick="saveEdit()">✅ Save</button>
+    <button onclick="closeModal()" style="background:#dc2626">Cancel</button>
+
+  </div>
+</div>
+
+<footer class="premium-footer">
+
+    <div class="footer-floating-logo">
+        <img src="logo.png" alt="Logo">
+    </div>
+
+    <div class="footer-left">
+
+        <div class="footer-brand">
+
+            <img src="logo.png" class="footer-brand-icon">
+
+            <span>
+                Version 1.0.0 | Anshuman's Splitwise © 2026
+            </span>
+
+        </div>
+
+    </div>
+
+    <div class="footer-right">
+
+    <a href="#" class="social-btn"><i class="fab fa-github"></i></a>
+    <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+    <a href="#" class="social-btn"><i class="fas fa-envelope"></i></a>
+
+</div>
+
+</footer>
+
+
+</body>
+</html>
